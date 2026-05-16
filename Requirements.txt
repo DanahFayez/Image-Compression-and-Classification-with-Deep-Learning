@@ -1,0 +1,20 @@
+# Core deep learning libraries
+torch
+torchvision
+
+# Numerical processing
+numpy
+pandas
+
+# Image processing and visualization
+Pillow
+matplotlib
+
+# Wavelet transform compression
+PyWavelets
+
+# Progress bars
+tqdm
+
+# Evaluation metrics and analysis
+scikit-learn
