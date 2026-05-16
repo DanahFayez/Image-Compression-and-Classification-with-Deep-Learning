@@ -259,8 +259,7 @@ A bar chart of classification accuracy at {Original, 2:1, 5:1, 10:1}. Used to co
 
 **Figure 3 — Top 10 classes most affected by 10:1 compression**
 
-><img width="1434" height="622" alt="image" src=<img width="1189" height="490" alt="image" src="https://github.com/user-attachments/assets/66ec378b-0151-442a-8dbd-3c981cb2aa3e" />
->
+<img width="1189" height="490" alt="image" src="https://github.com/user-attachments/assets/66ec378b-0151-442a-8dbd-3c981cb2aa3e" />
 A bar chart of accuracy drop per class, sorted descending. Used together with the sample-image montage below to interpret *what kind of visual content* is most vulnerable.
 
 
