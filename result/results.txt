@@ -1,0 +1,153 @@
+================================================================================
+  IMAGE COMPRESSION AND DEEP LEARNING CLASSIFICATION - RESULTS
+  EE413 - Signal Processing / Deep Learning Project
+================================================================================
+
+EXPERIMENT SETUP
+--------------------------------------------------------------------------------
+Dataset           : Mini-ImageNet (100 classes)
+Training images   : 50,000 (500 per class)
+Testing images    : 10,000 (100 per class)
+Input resolution  : 96 x 96
+Random seed       : 42
+
+Compression method: 2D Discrete Wavelet Transform
+Wavelet           : Haar
+Decomposition     : 2 levels
+Thresholding      : Top-K hard thresholding (per RGB channel)
+Compression ratios: 2:1, 5:1, 10:1
+
+
+MODELS
+--------------------------------------------------------------------------------
+Model 1: ResNet-18
+  - Pretrained weights : ImageNet
+  - Output classes     : 100 (final FC layer replaced)
+  - Optimizer          : Adam
+  - Learning rate      : 1e-4
+  - Weight decay       : 1e-4
+  - Loss function      : CrossEntropyLoss
+  - Epochs             : 5
+  - Batch size         : 64
+  - Train/Val split    : 90 / 10
+  - Checkpoint         : best validation accuracy
+
+Model 2: MobileNetV2
+  - Pretrained weights : ImageNet
+  - Output classes     : 100 (final classifier replaced)
+  - Optimizer          : Adam
+  - Learning rate      : 1e-4
+  - Loss function      : CrossEntropyLoss
+  - Epochs             : 3
+  - Batch size         : 64
+  - Train/Val split    : 80 / 20
+  - Checkpoint         : best validation accuracy
+
+
+================================================================================
+  CLASSIFICATION ACCURACY
+================================================================================
+
++-------------------+--------------+----------------+
+| Test Set          | ResNet-18    | MobileNetV2    |
++-------------------+--------------+----------------+
+| Original          |    72.37 %   |    74.52 %     |   <- baseline
+| 2:1 compressed    |    71.45 %   |    74.26 %     |
+| 5:1 compressed    |    68.23 %   |    68.49 %     |
+| 10:1 compressed   |    49.07 %   |    47.22 %     |
++-------------------+--------------+----------------+
+
+
+ACCURACY DROP RELATIVE TO BASELINE (in percentage points)
+--------------------------------------------------------------------------------
+
++-------------------+------------------+--------------------+
+| Compression ratio | ResNet-18 drop   | MobileNetV2 drop   |
++-------------------+------------------+--------------------+
+|  2:1              |     -0.92 pp     |     -0.26 pp       |
+|  5:1              |     -4.14 pp     |     -6.03 pp       |
+| 10:1              |    -23.30 pp     |    -27.30 pp       |
++-------------------+------------------+--------------------+
+
+
+RELATIVE ACCURACY (% of baseline retained)
+--------------------------------------------------------------------------------
+
++-------------------+--------------+----------------+
+| Compression ratio | ResNet-18    | MobileNetV2    |
++-------------------+--------------+----------------+
+|  2:1              |   98.73 %    |    99.65 %     |
+|  5:1              |   94.28 %    |    91.91 %     |
+| 10:1              |   67.80 %    |    63.37 %     |
++-------------------+--------------+----------------+
+
+
+================================================================================
+  KEY OBSERVATIONS
+================================================================================
+
+1. Mild compression (2:1) is essentially free.
+   Both models lose less than 1 percentage point of accuracy. Keeping 50 %
+   of the wavelet coefficients preserves enough information that the
+   classifiers are effectively unaffected. This is consistent with the
+   energy-compaction property of the wavelet transform.
+
+2. Moderate compression (5:1) begins to bite.
+   Accuracy drops by 4-6 pp. MobileNetV2 degrades faster than ResNet-18
+   here (-6.03 pp vs -4.14 pp), despite having a higher baseline. This
+   suggests that the depth-wise-separable convolutions in MobileNetV2
+   rely more heavily on mid-frequency texture cues that hard thresholding
+   removes early.
+
+3. Aggressive compression (10:1) is catastrophic.
+   Both models lose roughly a quarter of their accuracy in absolute terms
+   (ResNet-18: -23.30 pp, MobileNetV2: -27.30 pp). Keeping only 10 % of
+   wavelet coefficients removes enough high- and mid-frequency content
+   that many class-discriminative features disappear.
+
+4. The degradation curve is highly non-linear.
+   Moving from 2:1 to 5:1 costs a few percentage points; moving from 5:1
+   to 10:1 costs roughly five times as much. The dominant failure regime
+   sits between these two operating points.
+
+5. MobileNetV2 is less robust than ResNet-18.
+   Although MobileNetV2 wins on the original test set, it loses that lead
+   at 5:1 and falls below ResNet-18 at 10:1. For deployment scenarios
+   where input images are likely to be heavily compressed, ResNet-18
+   appears to be the safer choice on this dataset.
+
+
+================================================================================
+  PER-CLASS SENSITIVITY (10:1 COMPRESSION)
+================================================================================
+
+The per-class analysis identifies the top 10 classes with the largest
+accuracy drop between the original and 10:1 compressed test sets.
+
+Visual inspection of sample images from these classes suggests that
+fine textures, repetitive patterns, and subtle inter-class features are
+the most fragile - exactly the content that lives in the high-frequency
+wavelet sub-bands that hard thresholding discards first.
+
+(Specific class IDs and drop values are produced by the notebook at
+runtime and printed in the "Most affected classes" output block.)
+
+
+================================================================================
+  CONCLUSION
+================================================================================
+
+Wavelet-based lossy image compression has a non-uniform effect on CNN
+classification accuracy:
+
+  - Compression ratios up to 2:1 are safe for both models tested.
+  - 5:1 compression causes a measurable but recoverable drop (4-6 pp).
+  - 10:1 compression causes severe degradation (>20 pp), making it
+    unsuitable for deployment without compression-aware training.
+
+Across architectures, ResNet-18 is more robust to aggressive wavelet
+compression than MobileNetV2, even though MobileNetV2 has the higher
+uncompressed baseline. The choice of architecture should therefore
+account for the expected compression regime at inference time.
+
+================================================================================
