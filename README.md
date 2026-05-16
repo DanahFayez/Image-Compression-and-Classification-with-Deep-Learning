@@ -213,9 +213,9 @@ Checkpoint selection: **best validation accuracy** across all epochs.
 
 | Compression ratio | ResNet-18 drop | MobileNetV2 drop |
 |-------------------|----------------|------------------|
-| 2:1               | − 0.25 pp       | −0.21 pp         |
-| 5:1               | −2.77 pp       | −7.08 pp         |
-| 10:1              | −21.00 pp      | −27.82 pp        |
+| 2:1               | − 0.25 pp       | −0.30 pp         |
+| 5:1               | −2.77 pp       | −6.13 pp         |
+| 10:1              | −20.08 pp      | −26.92 pp        |
 
 *(pp = percentage points)*
 
@@ -223,11 +223,11 @@ Checkpoint selection: **best validation accuracy** across all epochs.
 
 Several observations stand out:
 
-1. **Mild compression is essentially free.** At 2:1, both models lose less than one percentage point of accuracy (ResNet-18: −0.25 pp, MobileNetV2: −0.21 pp). Keeping the top 50 % of wavelet coefficients preserves enough information that the classifiers are effectively unaffected. This is consistent with the energy-compaction property of the wavelet transform — half of the coefficients carry the vast majority of the signal energy in natural images.
+1. **Mild compression is essentially free.** At 2:1, both models lose less than one percentage point of accuracy (ResNet-18: −0.25 pp, MobileNetV2: −0.30 pp). Keeping the top 50 % of wavelet coefficients preserves enough information that the classifiers are effectively unaffected. This is consistent with the energy-compaction property of the wavelet transform — half of the coefficients carry the vast majority of the signal energy in natural images.
 
-2. **Moderate compression begins to bite.** At 5:1, accuracy drops by 4–6 pp. Interestingly, **MobileNetV2 degrades faster than ResNet-18 here** (−6.31 pp vs −2.77 pp), despite having a slightly higher baseline. This suggests that the lightweight depth-wise-separable convolutions in MobileNetV2 may rely more heavily on mid-frequency texture cues that are among the first to be zeroed out by hard thresholding.
+2. **Moderate compression begins to bite.** At 5:1, accuracy drops by 4–6 pp. Interestingly, **MobileNetV2 degrades faster than ResNet-18 here** (−6.13 pp vs −2.77 pp), despite having a slightly higher baseline. This suggests that the lightweight depth-wise-separable convolutions in MobileNetV2 may rely more heavily on mid-frequency texture cues that are among the first to be zeroed out by hard thresholding.
 
-3. **Aggressive compression is catastrophic.** At 10:1, both models lose roughly **a quarter of their accuracy in absolute terms** (ResNet-18: −21.00 pp, MobileNetV2: −26.92 pp). Keeping only 10 % of wavelet coefficients removes enough high- and mid-frequency content that many class-discriminative features disappear, and accuracy approaches the level where the classifier is no longer competitive.
+3. **Aggressive compression is catastrophic.** At 10:1, both models lose roughly **a quarter of their accuracy in absolute terms** (ResNet-18: −20.80 pp, MobileNetV2: −26.92 pp). Keeping only 10 % of wavelet coefficients removes enough high- and mid-frequency content that many class-discriminative features disappear, and accuracy approaches the level where the classifier is no longer competitive.
 
 4. **The degradation curve is highly non-linear.** Moving from 2:1 to 5:1 costs a few percentage points; moving from 5:1 to 10:1 costs roughly five times as much. The dominant failure regime sits between these two operating points, which is exactly the range where practical wavelet codecs typically operate — suggesting that classifier-aware rate selection is important.
 
