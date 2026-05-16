@@ -205,9 +205,9 @@ Checkpoint selection: **best validation accuracy** across all epochs.
 | Test Set        | ResNet-18              | MobileNetV2            |
 |-----------------|------------------------|------------------------|
 | Original        | **72.37 %** (baseline) | **74.52 %** (baseline) |
-| 2:1 compressed  | **71.45 %**            | **74.26 %**            |
-| 5:1 compressed  | **68.23 %**            | **68.49 %**            |
-| 10:1 compressed | **49.07 %**            | **47.22 %**            |
+| 2:1 compressed  | **71.65 %**            | **74.26 %**            |
+| 5:1 compressed  | **68.03 %**            | **68.49 %**            |
+| 10:1 compressed | **50.32 %**            | **47.22 %**            |
 
 ### Accuracy drop relative to baseline
 
